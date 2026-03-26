@@ -7,9 +7,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 # jinja2 pandas fastapi pymysql python-multipart uvicorn
-# DB 설정 (EC2/도커 환경에서는 'localhost' 대신 호스트 IP나 서비스명을 사용해야 할 수 있습니다)
+
 db_config ={
-     'host':'mysql-container-name'
+     'host':'host.docker.internal'
     ,'user':'myuser'
     ,'password':'myuser'
     ,'database':'mydb'
