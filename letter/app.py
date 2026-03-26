@@ -9,7 +9,7 @@ from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 # jinja2 pandas fastapi pymysql python-multipart uvicorn
 # DB 설정 (EC2/도커 환경에서는 'localhost' 대신 호스트 IP나 서비스명을 사용해야 할 수 있습니다)
 db_config ={
-     'host':'127.0.0.1'  # 만약 DB가 별도 컨테이너라면 'mysql-container-name' 등으로 변경 필요
+     'host':'mysql-container-name'
     ,'user':'myuser'
     ,'password':'myuser'
     ,'database':'mydb'
