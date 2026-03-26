@@ -1,3 +1,4 @@
+import os
 import pymysql
 import pandas as pd
 from fastapi import FastAPI, Request, Form
@@ -22,8 +23,9 @@ app = FastAPI(title="Love Letter App (FastAPI)")
 # EC2/Nginx 등 리버스 프록시 환경을 위한 미들웨어 추가
 app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 # --- 메인 화면 (레터 조회) ---
 @app.get("/", response_class=HTMLResponse)
@@ -44,17 +46,20 @@ def send_letter(
     messageThree: str = Form(" ")
 ):
     if toNm and email:
-        conn = get_connection()
-        cursor = conn.cursor()
-        sql = '''
-            INSERT INTO cards (email, nm, message1, message2, message3)
-            VALUES (%s, %s, %s, %s, %s)
-        '''
-        cursor.execute(sql, (email, toNm, messageOne, messageTwo, messageThree))
-        conn.commit()
-        conn.close()
-        
-        return RedirectResponse(url="/", status_code=303)
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+            sql = '''
+                INSERT INTO cards (email, nm, message1, message2, message3)
+                VALUES (%s, %s, %s, %s, %s)
+            '''
+            cursor.execute(sql, (email, toNm, messageOne, messageTwo, messageThree))
+            conn.commit()
+            conn.close()
+            return RedirectResponse(url="/", status_code=303)
+        except Exception as e:
+            error_msg = f"DB 저장 중 오류 발생: {str(e)}"
+            return templates.TemplateResponse(name="letterForm.html", request=request, context={"error": error_msg})
         
     return templates.TemplateResponse(name="letterForm.html", request=request, context={"error": "이메일과 받는 분 이름이 필요합니다."})
 
@@ -64,25 +69,29 @@ def get_card(request: Request
            , toNm: str = Form(...)
            , email: str = Form(...)): 
     if toNm != '' and email !='':
-        conn = get_connection()
-        card = pd.read_sql(sql='''
-            SELECT *
-            FROM cards
-            WHERE email = %s
-            AND   nm = %s
-        ''', con=conn, params=(email,toNm))
-        conn.close()
-        
-        if not card.empty:
-            return templates.TemplateResponse(name="letter_result.html", request=request, context={
-                "message1": card.iloc[0]['message1'],
-                "message2": card.iloc[0]['message2'],
-                "message3": card.iloc[0]['message3'],
-                "nm": toNm,
-                "email": email
-            })
-        else:
-            return templates.TemplateResponse(name="index.html", request=request, context={"error": "등록된 러브레터가 없습니다 ㅠㅠ"})
+        try:
+            conn = get_connection()
+            card = pd.read_sql(sql='''
+                SELECT *
+                FROM cards
+                WHERE email = %s
+                AND   nm = %s
+            ''', con=conn, params=(email,toNm))
+            conn.close()
+            
+            if not card.empty:
+                return templates.TemplateResponse(name="letter_result.html", request=request, context={
+                    "message1": card.iloc[0]['message1'],
+                    "message2": card.iloc[0]['message2'],
+                    "message3": card.iloc[0]['message3'],
+                    "nm": toNm,
+                    "email": email
+                })
+            else:
+                return templates.TemplateResponse(name="index.html", request=request, context={"error": "등록된 러브레터가 없습니다 ㅠㅠ"})
+        except Exception as e:
+            error_msg = f"DB 조회 중 오류 발생: {str(e)}"
+            return templates.TemplateResponse(name="index.html", request=request, context={"error": error_msg})
     else:
         return templates.TemplateResponse(name="index.html",request=request, context={"error": "이름과 이메일을 정확히 입력하세요."})
 
