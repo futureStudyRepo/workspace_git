@@ -4,9 +4,11 @@ from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 # jinja2 pandas fastapi pymysql python-multipart uvicorn
+# DB 설정 (EC2/도커 환경에서는 'localhost' 대신 호스트 IP나 서비스명을 사용해야 할 수 있습니다)
 db_config ={
-     'host':'127.0.0.1'
+     'host':'127.0.0.1'  # 만약 DB가 별도 컨테이너라면 'mysql-container-name' 등으로 변경 필요
     ,'user':'myuser'
     ,'password':'myuser'
     ,'database':'mydb'
@@ -16,6 +18,10 @@ def get_connection():
     return pymysql.connect(**db_config)
 
 app = FastAPI(title="Love Letter App (FastAPI)")
+
+# EC2/Nginx 등 리버스 프록시 환경을 위한 미들웨어 추가
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 

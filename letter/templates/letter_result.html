@@ -3,7 +3,7 @@
 {% block title %}Love Letter Received {% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="../static/css/result.css">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/result.css') }}">
 <style>
   body {
     text-align: center;
@@ -17,7 +17,7 @@
 <div class="relative z-10 flex flex-col items-center justify-center min-h-screen">
   <!-- 숨겨진 배경 음악 플레이어 -->
   <audio id="bgm" loop>
-    <source src="../static/audio/Sakura-Romance_Royalty-Free-Music.mp3" type="audio/mp3">
+    <source src="{{ url_for('static', path='/audio/Sakura-Romance_Royalty-Free-Music.mp3') }}" type="audio/mp3">
   </audio>
 
   <div class="card my-12 mx-auto rounded-xl shadow-2xl shadow-pink-200" style="border: none;">
@@ -53,7 +53,7 @@
     </svg>
   </span>
   <!-- 이 페이지에서만 구동되는 애니메이션 JS -->
-  <script src="../static/js/style.js"></script>
+  <script src="{{ url_for('static', path='/js/style.js') }}"></script>
   <!-- 브라우저 정책 우회 (카드를 누르는 순간 배경음악 터지게 만듦) -->
   <script>
     document.body.addEventListener("click", function () {

@@ -3,7 +3,7 @@
 {% block title %}Write a Love Letter 🖋️{% endblock %}
 
 {% block head %}
-<link rel="stylesheet" href="../static/css/style.css">
+<link rel="stylesheet" href="{{ url_for('static', path='/css/style.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,7 @@
 	<!-- 커스텀 CSS를 걷어내고 Tailwind bg-[url]과 bg-cover 유틸리티로 완벽 통제 -->
 	<div id="card"
 		class="relative bg-cover bg-center rounded-3xl shadow-[0_20px_40px_rgba(255,107,129,0.25)] w-full max-w-[500px] overflow-hidden"
-		style="background-image: url('../static/img/2.webp');">
+		style="background-image: url('{{ url_for('static', path='/img/2.webp') }}');">
 		<!-- 배경 이미지가 너무 진해서 안보일 경우를 대비한 반투명 오버레이 -->
 		<div class="absolute inset-0 bg-white/40"></div>
 
@@ -19,7 +19,7 @@
 			<h1 class="text-3xl text-pink-500 font-extrabold text-center mb-6 tracking-tight drop-shadow-sm">Love Letter
 				💌</h1>
 
-			<form id="sendForm" method="post" action="/sendLetter" class="space-y-4">
+			<form id="sendForm" method="post" action="{{ url_for('send_letter') }}" class="space-y-4">
 				<div>
 					<label for="email" class="block font-bold mb-1.5 text-pink-700/80 text-sm">보내는 분 연락처 (식별용
 						이메일):</label>
